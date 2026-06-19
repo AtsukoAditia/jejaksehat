@@ -4,25 +4,30 @@ JejakSehat adalah Progressive Web App untuk mencatat aktivitas gym, lari, perkem
 
 ## Status
 
-Project sedang berada pada **Phase 0 — Foundation**.
+Project sedang berada pada **Phase 1 — Authentication**.
 
 Sudah tersedia:
 
 - Next.js App Router dan TypeScript
-- Responsive landing page
+- Responsive landing page dan login page
 - PWA manifest, service worker, dan offline fallback
+- Auth.js dengan Google OAuth
+- JWT session dengan UUID internal pengguna
+- User upsert ke Google Sheets berdasarkan Google subject
+- Protected dashboard dan endpoint current user
 - API health endpoint
-- Domain entities dan repository contract
+- Domain entities dan repository contracts
 - Google Sheets schema dan initializer
 - Prisma schema untuk PostgreSQL
 - Data provider selector melalui environment variable
+- CI untuk lint, typecheck, tests, dan production build
 
 Belum tersedia:
 
-- Google authentication
 - CRUD gym dan lari
-- Dashboard pengguna
+- Dashboard statistik aktivitas
 - Deployment production
+- PostgreSQL persistence adapter
 
 ## Tech Stack
 
@@ -30,6 +35,8 @@ Belum tersedia:
 - React
 - TypeScript
 - Tailwind CSS
+- Auth.js
+- Google OAuth
 - Google Sheets API
 - Prisma ORM
 - PostgreSQL untuk tahap migrasi
@@ -40,16 +47,20 @@ Belum tersedia:
 ```bash
 npm install
 cp .env.example .env.local
+npm run sheets:init
 npm run dev
 ```
 
 Buka `http://localhost:3000`.
 
-API health check tersedia di:
+API tersedia di:
 
 ```text
-/api/v1/health
+GET /api/v1/health
+GET /api/v1/me
 ```
+
+`/api/v1/me` membutuhkan session yang valid.
 
 ## Environment Variables
 
@@ -60,6 +71,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 AUTH_SECRET=
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
+AUTH_TRUST_HOST=true
 
 DATA_PROVIDER=sheets
 
@@ -71,7 +83,21 @@ DATABASE_URL=
 DIRECT_URL=
 ```
 
-Jangan commit file `.env` atau credential service account ke repository.
+Jangan commit file `.env`, OAuth secret, atau credential service account ke repository.
+
+## Google Authentication
+
+Panduan Google Cloud, callback URL, environment variables, dan troubleshooting tersedia di:
+
+```text
+docs/GOOGLE_AUTH_SETUP.md
+```
+
+Callback lokal Auth.js:
+
+```text
+http://localhost:3000/api/auth/callback/google
+```
 
 ## Inisialisasi Google Sheets
 
@@ -108,6 +134,7 @@ UI dan business logic tidak boleh mengakses Google Sheets atau Prisma secara lan
 
 - `docs/ARCHITECTURE.md`
 - `docs/DATA_SCHEMA.md`
+- `docs/GOOGLE_AUTH_SETUP.md`
 - `docs/MIGRATION_POSTGRES.md`
 - `docs/ROADMAP.md`
 
@@ -117,6 +144,7 @@ UI dan business logic tidak boleh mengakses Google Sheets atau Prisma secara lan
 npm run dev
 npm run lint
 npm run typecheck
+npm test
 npm run build
 npm run sheets:init
 npm run db:generate
