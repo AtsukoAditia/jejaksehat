@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { ActivityCard } from "@/src/components/activity-card";
-import type { ActivityType } from "@/src/domain/entities/activity";
+import type { ActivityDetail, ActivityType } from "@/src/domain/entities/activity";
 import { getActivityRepository } from "@/src/infrastructure/repositories/activity-repository";
 
 export const metadata: Metadata = { title: "Aktivitas" };
@@ -15,7 +15,7 @@ export default async function ActivitiesPage({ searchParams }: PageProps) {
   const session = await auth();
   const query = await searchParams;
   const type: ActivityType | undefined = query.type === "GYM" || query.type === "RUN" ? query.type : undefined;
-  let activities = [] as Awaited<ReturnType<ReturnType<typeof getActivityRepository>["findByUser"]>>;
+  let activities: ActivityDetail[] = [];
   let unavailable = false;
 
   try {
@@ -36,13 +36,10 @@ export default async function ActivitiesPage({ searchParams }: PageProps) {
         <div><p className="eyebrow">Riwayat pribadi</p><h1 className="page-title">Aktivitasmu</h1><p className="page-subtitle">Lihat progres tanpa menghakimi proses.</p></div>
         <Link href="/dashboard/activities/new" className="primary-action">＋ Catat aktivitas</Link>
       </header>
-
       <div className="filter-pills" aria-label="Filter jenis aktivitas">
         {filters.map((filter) => <Link key={filter.label} href={filter.href} className={filter.active ? "filter-active" : ""}>{filter.label}</Link>)}
       </div>
-
       {unavailable && <div className="error-banner">Data aktivitas belum dapat dibaca. Konfigurasi Google Sheets akan diuji nanti.</div>}
-
       {activities.length > 0 ? (
         <div className="grid gap-3">{activities.map((activity) => <ActivityCard key={activity.id} activity={activity} />)}</div>
       ) : (
