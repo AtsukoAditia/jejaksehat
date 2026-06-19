@@ -18,7 +18,8 @@ Sudah tersedia:
 - Compound Google Sheets activity repository
 - Gym activity dengan multiple exercise dan set
 - Running activity dengan distance, pace, RPE, location, dan elevation
-- Activity history, filter, detail, PATCH API, dan soft delete
+- Activity history, filter, detail, edit metadata, PATCH API, dan soft delete
+- Full running activity editor
 - Weekly dashboard summary untuk sesi, durasi, jarak, active days, dan gym volume
 - Health-focused mobile-first UI
 - Zod validation dan ownership checks
@@ -29,7 +30,7 @@ Sudah tersedia:
 Belum tersedia:
 
 - Live Google OAuth dan Google Sheets credential test
-- Edit activity interface
+- Individual gym exercise/set editor
 - Body progress dan goals
 - Deployment production
 - PostgreSQL persistence adapter
