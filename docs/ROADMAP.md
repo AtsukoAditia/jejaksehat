@@ -48,8 +48,9 @@
 - [x] Multiple sets
 - [x] Workout history dan filter
 - [x] Workout detail
+- [x] Edit tanggal, durasi, nama sesi, lokasi, dan catatan
 - [x] Soft delete
-- [ ] Edit interface
+- [ ] Edit individual exercise dan set
 - [ ] Previous workout comparison
 
 ## Phase 4 — Running Tracker
@@ -59,8 +60,8 @@
 - [x] Running history dan filter
 - [x] Running detail
 - [x] Run type, RPE, location, dan elevation
+- [x] Edit running activity
 - [x] Soft delete
-- [ ] Edit interface
 
 ## Phase 5 — Body Progress dan Goals
 
