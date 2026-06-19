@@ -10,6 +10,12 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only-secret
+      AUTH_GOOGLE_ID: ci-client-id.apps.googleusercontent.com
+      AUTH_GOOGLE_SECRET: ci-client-secret
+      AUTH_TRUST_HOST: true
+      DATA_PROVIDER: sheets
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,4 +24,5 @@ jobs:
       - run: npm install
       - run: npm run lint
       - run: npm run typecheck
+      - run: npm test
       - run: npm run build

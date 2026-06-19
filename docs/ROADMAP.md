@@ -16,19 +16,20 @@
 
 ## Phase 1 — Authentication
 
-- [ ] Auth.js setup
-- [ ] Google OAuth
-- [ ] JWT session
-- [ ] User upsert melalui repository
-- [ ] Protected dashboard routes
-- [ ] Logout
-- [ ] Authorization tests
+- [x] Auth.js setup
+- [x] Google OAuth
+- [x] JWT session
+- [x] User upsert melalui repository
+- [x] Protected dashboard routes
+- [x] Logout
+- [x] Authorization tests
+- [x] Google Cloud OAuth setup documentation
 
 ## Phase 2 — Persistence Adapters
 
-- [ ] Sheets user repository
+- [x] Sheets user repository
 - [ ] Sheets activity repository
-- [ ] Repository factory
+- [x] Repository factory
 - [ ] Data validation dengan Zod
 - [ ] Mock repository untuk tests
 - [ ] Error mapping dan retry policy
