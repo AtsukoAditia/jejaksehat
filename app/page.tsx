@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { auth } from "@/auth";
+
 const features = [
   {
     title: "Catatan Gym",
@@ -13,7 +16,10 @@ const features = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth();
+  const authenticated = Boolean(session?.user?.id);
+
   return (
     <main className="min-h-screen px-5 py-6 sm:px-8 lg:px-12">
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] shadow-[0_24px_80px_rgba(20,92,56,0.12)]">
@@ -28,7 +34,7 @@ export default function HomePage() {
             </div>
           </div>
           <span className="rounded-full border border-[var(--border)] px-4 py-2 text-sm font-semibold text-[var(--muted)]">
-            Foundation v0.1
+            Authentication v0.2
           </span>
         </header>
 
@@ -47,13 +53,12 @@ export default function HomePage() {
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <button
-                type="button"
-                disabled
-                className="rounded-2xl bg-[var(--primary)] px-6 py-4 font-bold text-white opacity-80"
+              <Link
+                href={authenticated ? "/dashboard" : "/login"}
+                className="rounded-2xl bg-[var(--primary)] px-6 py-4 text-center font-bold text-white transition hover:bg-[var(--primary-strong)]"
               >
-                Login Google — segera
-              </button>
+                {authenticated ? "Buka Dashboard" : "Masuk dengan Google"}
+              </Link>
               <a
                 href="/api/v1/health"
                 className="rounded-2xl border border-[var(--border)] px-6 py-4 text-center font-bold"
