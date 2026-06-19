@@ -19,6 +19,7 @@ import { SHEET_TABS } from "./schema";
 
 type Cell = string | number | boolean | null | undefined;
 type Row = Cell[];
+type ValueRange = { range: string; values: Row[] };
 
 interface SheetTables {
   activities: Row[];
@@ -138,7 +139,6 @@ function buildDetails(tables: SheetTables): ActivityDetail[] {
         const gym = gymByActivity.get(activity.id);
         return gym ? [{ ...activity, activityType: "GYM", gym, run: null }] : [];
       }
-
       const run = runByActivity.get(activity.id);
       return run ? [{ ...activity, activityType: "RUN", gym: null, run }] : [];
     });
@@ -212,11 +212,9 @@ export class SheetsActivityRepository implements ActivityRepository {
     let details = buildDetails(await this.readTables()).filter(
       (item) => item.userId === userId,
     );
-
     if (filters.type) details = details.filter((item) => item.activityType === filters.type);
     if (filters.dateFrom) details = details.filter((item) => item.activityDate >= filters.dateFrom!);
     if (filters.dateTo) details = details.filter((item) => item.activityDate <= filters.dateTo!);
-
     details.sort((a, b) =>
       b.activityDate.localeCompare(a.activityDate) || b.createdAt.localeCompare(a.createdAt),
     );
@@ -224,37 +222,17 @@ export class SheetsActivityRepository implements ActivityRepository {
   }
 
   async create(input: CreateActivityInput): Promise<ActivityDetail> {
-    const sheets = getSheetsClient();
     const tables = await this.readTables();
     const now = new Date().toISOString();
-    const data: Array<{ range: string; values: Row[][] }> = [
-      {
-        range: `${SHEET_TABS.activities}!A${tables.activities.length + 2}:I${tables.activities.length + 2}`,
-        values: [[
-          input.id,
-          input.userId,
-          input.activityType,
-          input.activityDate,
-          input.durationSeconds,
-          input.notes ?? "",
-          now,
-          now,
-          "",
-        ]],
-      },
-    ];
+    const data: ValueRange[] = [{
+      range: `${SHEET_TABS.activities}!A${tables.activities.length + 2}:I${tables.activities.length + 2}`,
+      values: [[input.id, input.userId, input.activityType, input.activityDate, input.durationSeconds, input.notes ?? "", now, now, ""]],
+    }];
 
     if (input.activityType === "RUN") {
       data.push({
         range: `${SHEET_TABS.runs}!A${tables.runs.length + 2}:F${tables.runs.length + 2}`,
-        values: [[
-          input.id,
-          input.distanceMeters,
-          input.runType,
-          input.location ?? "",
-          input.rpe ?? "",
-          input.elevationGainMeters ?? "",
-        ]],
+        values: [[input.id, input.distanceMeters, input.runType, input.location ?? "", input.rpe ?? "", input.elevationGainMeters ?? ""]],
       });
     } else {
       const childRows = exerciseRows(input.id, input.exercises, now);
@@ -272,11 +250,10 @@ export class SheetsActivityRepository implements ActivityRepository {
       });
     }
 
-    await sheets.spreadsheets.values.batchUpdate({
+    await getSheetsClient().spreadsheets.values.batchUpdate({
       spreadsheetId: getSpreadsheetId(),
       requestBody: { valueInputOption: "RAW", data },
     });
-
     const created = await this.findById(input.id, input.userId);
     if (!created) throw new Error("Activity was written but could not be read back");
     return created;
@@ -287,33 +264,20 @@ export class SheetsActivityRepository implements ActivityRepository {
     userId: string,
     input: UpdateActivityInput,
   ): Promise<ActivityDetail> {
-    const sheets = getSheetsClient();
     const tables = await this.readTables();
     const activityIndex = tables.activities.findIndex(
       (row) => text(row[0]) === id && text(row[1]) === userId && !nullableText(row[8]),
     );
     if (activityIndex < 0) throw new Error("Activity not found");
-
-    const existingType = text(tables.activities[activityIndex][2]);
-    if (existingType !== input.activityType) {
+    if (text(tables.activities[activityIndex][2]) !== input.activityType) {
       throw new Error("Activity type cannot be changed");
     }
 
     const now = new Date().toISOString();
     const current = tables.activities[activityIndex];
-    const data: Array<{ range: string; values: Row[][] }> = [{
+    const data: ValueRange[] = [{
       range: `${SHEET_TABS.activities}!A${activityIndex + 2}:I${activityIndex + 2}`,
-      values: [[
-        id,
-        userId,
-        input.activityType,
-        input.activityDate,
-        input.durationSeconds,
-        input.notes ?? "",
-        text(current[6]),
-        now,
-        "",
-      ]],
+      values: [[id, userId, input.activityType, input.activityDate, input.durationSeconds, input.notes ?? "", text(current[6]), now, ""]],
     }];
 
     if (input.activityType === "RUN") {
@@ -332,11 +296,13 @@ export class SheetsActivityRepository implements ActivityRepository {
       });
 
       const existingExerciseIds = new Set(
-        tables.gymExercises.filter((row) => text(row[1]) === id && !nullableText(row[7])).map((row) => text(row[0])),
+        tables.gymExercises
+          .filter((row) => text(row[1]) === id && !nullableText(row[7]))
+          .map((row) => text(row[0])),
       );
       tables.gymExercises.forEach((row, index) => {
         if (existingExerciseIds.has(text(row[0]))) {
-          const updated = Array.from({ length: 8 }, (_, cell) => row[cell] ?? "");
+          const updated: Row = Array.from({ length: 8 }, (_, cell) => row[cell] ?? "");
           updated[6] = now;
           updated[7] = now;
           data.push({ range: `${SHEET_TABS.gymExercises}!A${index + 2}:H${index + 2}`, values: [updated] });
@@ -344,7 +310,7 @@ export class SheetsActivityRepository implements ActivityRepository {
       });
       tables.gymSets.forEach((row, index) => {
         if (existingExerciseIds.has(text(row[1])) && !nullableText(row[9])) {
-          const updated = Array.from({ length: 10 }, (_, cell) => row[cell] ?? "");
+          const updated: Row = Array.from({ length: 10 }, (_, cell) => row[cell] ?? "");
           updated[8] = now;
           updated[9] = now;
           data.push({ range: `${SHEET_TABS.gymSets}!A${index + 2}:J${index + 2}`, values: [updated] });
@@ -362,7 +328,7 @@ export class SheetsActivityRepository implements ActivityRepository {
       });
     }
 
-    await sheets.spreadsheets.values.batchUpdate({
+    await getSheetsClient().spreadsheets.values.batchUpdate({
       spreadsheetId: getSpreadsheetId(),
       requestBody: { valueInputOption: "RAW", data },
     });
@@ -377,7 +343,7 @@ export class SheetsActivityRepository implements ActivityRepository {
       (row) => text(row[0]) === id && text(row[1]) === userId && !nullableText(row[8]),
     );
     if (index < 0) throw new Error("Activity not found");
-    const row = Array.from({ length: 9 }, (_, cell) => tables.activities[index][cell] ?? "");
+    const row: Row = Array.from({ length: 9 }, (_, cell) => tables.activities[index][cell] ?? "");
     const now = new Date().toISOString();
     row[7] = now;
     row[8] = now;
