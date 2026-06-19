@@ -24,33 +24,43 @@
 - [x] Logout
 - [x] Authorization tests
 - [x] Google Cloud OAuth setup documentation
+- [ ] Live OAuth credential test
 
-## Phase 2 — Persistence Adapters
+## Phase 2 — Activity Persistence
 
 - [x] Sheets user repository
-- [ ] Sheets activity repository
-- [x] Repository factory
-- [ ] Data validation dengan Zod
-- [ ] Mock repository untuk tests
-- [ ] Error mapping dan retry policy
+- [x] Compound Sheets activity repository
+- [x] Repository provider factory
+- [x] Zod validation untuk gym dan lari
+- [x] Authenticated collection dan item API
+- [x] Ownership filtering berdasarkan session user ID
+- [x] Batched writes untuk activity dan detail
+- [x] Soft delete
+- [x] PATCH endpoint
+- [ ] Live Google Sheets credential test
+- [ ] Retry policy untuk rate limit
+- [ ] PostgreSQL activity adapter
 
 ## Phase 3 — Gym Tracker
 
-- [ ] Create gym session
-- [ ] Multiple exercises
-- [ ] Multiple sets
-- [ ] Workout history
-- [ ] Workout detail
-- [ ] Edit dan soft delete
+- [x] Create gym session
+- [x] Multiple exercises
+- [x] Multiple sets
+- [x] Workout history dan filter
+- [x] Workout detail
+- [x] Soft delete
+- [ ] Edit interface
 - [ ] Previous workout comparison
 
 ## Phase 4 — Running Tracker
 
-- [ ] Create running activity
-- [ ] Pace calculation
-- [ ] Running history
-- [ ] Detail, edit, dan soft delete
-- [ ] Run type dan RPE
+- [x] Create running activity
+- [x] Pace calculation
+- [x] Running history dan filter
+- [x] Running detail
+- [x] Run type, RPE, location, dan elevation
+- [x] Soft delete
+- [ ] Edit interface
 
 ## Phase 5 — Body Progress dan Goals
 
@@ -62,12 +72,14 @@
 
 ## Phase 6 — Dashboard
 
-- [ ] Weekly activity summary
-- [ ] Workout duration
-- [ ] Running distance
+- [x] Weekly activity summary
+- [x] Workout duration
+- [x] Running distance
+- [x] Gym volume
+- [x] Active days
+- [x] Recent activities
 - [ ] Workout streak
 - [ ] Goal progress
-- [ ] Recent activities
 
 ## Phase 7 — PWA Hardening
 
