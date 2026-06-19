@@ -46,3 +46,25 @@ export interface RunActivity {
   rpe: number | null;
   elevationGainMeters: number | null;
 }
+
+export interface GymActivityDetail extends Activity {
+  activityType: "GYM";
+  gym: GymSession;
+  run: null;
+}
+
+export interface RunActivityDetail extends Activity {
+  activityType: "RUN";
+  gym: null;
+  run: RunActivity;
+}
+
+export type ActivityDetail = GymActivityDetail | RunActivityDetail;
+
+export interface ActivityDashboardSummary {
+  sessionCount: number;
+  totalDurationSeconds: number;
+  runningDistanceMeters: number;
+  gymVolumeKg: number;
+  activeDays: number;
+}
