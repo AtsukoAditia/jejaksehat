@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ActivityType {
+  GYM
+  RUN
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  googleSubject String    @unique @map("google_subject")
+  email         String    @unique
+  name          String
+  avatarUrl     String?   @map("avatar_url")
+  timezone      String    @default("Asia/Jakarta")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  activities       Activity[]
+  bodyMeasurements BodyMeasurement[]
+  goals            Goal[]
+
+  @@map("users")
+}
+
+model Activity {
+  id              String       @id @default(uuid()) @db.Uuid
+  userId          String       @db.Uuid @map("user_id")
+  activityType    ActivityType @map("activity_type")
+  activityDate    DateTime     @db.Date @map("activity_date")
+  durationSeconds Int          @map("duration_seconds")
+  notes           String?
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  deletedAt       DateTime?    @map("deleted_at")
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gymSession GymSession?
+  run        Run?
+
+  @@index([userId, activityDate])
+  @@index([userId, activityType])
+  @@map("activities")
+}
+
+model GymSession {
+  activityId String  @id @db.Uuid @map("activity_id")
+  title      String
+  location   String?
+
+  activity  Activity      @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  exercises GymExercise[]
+
+  @@map("gym_sessions")
+}
+
+model GymExercise {
+  id             String    @id @default(uuid()) @db.Uuid
+  activityId     String    @db.Uuid @map("activity_id")
+  exerciseName   String    @map("exercise_name")
+  muscleGroup    String    @map("muscle_group")
+  sequenceNumber Int       @map("sequence_number")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  session GymSession @relation(fields: [activityId], references: [activityId], onDelete: Cascade)
+  sets    GymSet[]
+
+  @@index([activityId, sequenceNumber])
+  @@map("gym_exercises")
+}
+
+model GymSet {
+  id         String    @id @default(uuid()) @db.Uuid
+  exerciseId String    @db.Uuid @map("exercise_id")
+  setNumber  Int       @map("set_number")
+  reps       Int
+  weightKg   Decimal   @db.Decimal(7, 2) @map("weight_kg")
+  rpe        Decimal?  @db.Decimal(3, 1)
+  completed  Boolean   @default(true)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  exercise GymExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([exerciseId, setNumber])
+  @@map("gym_sets")
+}
+
+model Run {
+  activityId          String   @id @db.Uuid @map("activity_id")
+  distanceMeters      Int      @map("distance_meters")
+  runType             String   @map("run_type")
+  location            String?
+  rpe                  Decimal? @db.Decimal(3, 1)
+  elevationGainMeters Int?     @map("elevation_gain_meters")
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@map("runs")
+}
+
+model BodyMeasurement {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @db.Uuid @map("user_id")
+  measuredAt     DateTime  @db.Date @map("measured_at")
+  weightKg       Decimal   @db.Decimal(6, 2) @map("weight_kg")
+  bodyFatPercent Decimal?  @db.Decimal(5, 2) @map("body_fat_percent")
+  waistCm        Decimal?  @db.Decimal(6, 2) @map("waist_cm")
+  notes          String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, measuredAt])
+  @@map("body_measurements")
+}
+
+model Goal {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid @map("user_id")
+  goalType    String    @map("goal_type")
+  targetValue Decimal   @db.Decimal(10, 2) @map("target_value")
+  unit        String
+  periodType  String    @map("period_type")
+  startDate   DateTime  @db.Date @map("start_date")
+  endDate     DateTime? @db.Date @map("end_date")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@map("goals")
+}
