@@ -46,8 +46,9 @@ export interface CreateRunActivityInput extends ActivityBaseInput {
 }
 
 export type CreateActivityInput = CreateGymActivityInput | CreateRunActivityInput;
-
-export type UpdateActivityInput = Omit<CreateActivityInput, "id" | "userId">;
+export type UpdateActivityInput =
+  | Omit<CreateGymActivityInput, "id" | "userId">
+  | Omit<CreateRunActivityInput, "id" | "userId">;
 
 export interface ActivityRepository {
   findById(id: string, userId: string): Promise<ActivityDetail | null>;
