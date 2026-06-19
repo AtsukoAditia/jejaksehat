@@ -1,122 +1,55 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import { auth, signOut } from "@/auth";
+import Link from "next/link";
+import { auth } from "@/auth";
+import { ActivityCard } from "@/src/components/activity-card";
+import type { ActivityDetail } from "@/src/domain/entities/activity";
+import { getActivityRepository } from "@/src/infrastructure/repositories/activity-repository";
+import { formatDistance, formatDuration, isWithinCurrentWeek, summarizeActivities } from "@/src/lib/activity-metrics";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-};
-
-const quickActions = [
-  {
-    title: "Catat Gym",
-    description: "Simpan sesi, gerakan, set, repetisi, dan beban latihan.",
-  },
-  {
-    title: "Catat Lari",
-    description: "Rekam jarak, durasi, pace, lokasi, dan intensitas lari.",
-  },
-  {
-    title: "Update Progress",
-    description: "Pantau berat badan, body fat, dan lingkar pinggang.",
-  },
-];
+export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
   const session = await auth();
+  const displayName = session?.user?.name?.split(" ")[0] ?? "Kamu";
+  let activities: ActivityDetail[] = [];
+  let unavailable = false;
 
-  if (!session?.user?.id) {
-    redirect("/login");
+  try {
+    activities = await getActivityRepository().findByUser(session!.user!.id!, { limit: 50 });
+  } catch {
+    unavailable = true;
   }
 
-  const displayName = session.user.name ?? "Pengguna JejakSehat";
-  const initial = displayName.charAt(0).toUpperCase();
+  const weeklyActivities = activities.filter((activity) => isWithinCurrentWeek(activity.activityDate));
+  const summary = summarizeActivities(weeklyActivities);
+  const recent = activities.slice(0, 4);
 
   return (
-    <main className="min-h-screen px-5 py-6 sm:px-8 lg:px-12">
-      <div className="mx-auto max-w-6xl">
-        <header className="flex flex-col gap-5 rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[0_20px_60px_rgba(20,92,56,0.1)] sm:flex-row sm:items-center sm:justify-between sm:p-8">
-          <div className="flex items-center gap-4">
-            <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[var(--primary)] text-2xl font-black text-white">
-              {initial}
-            </span>
-            <div>
-              <p className="text-sm font-bold text-[var(--primary-strong)]">
-                Dashboard JejakSehat
-              </p>
-              <h1 className="text-2xl font-black tracking-tight">
-                Halo, {displayName}
-              </h1>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                {session.user.email}
-              </p>
-            </div>
-          </div>
-
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/" });
-            }}
-          >
-            <button
-              type="submit"
-              className="w-full rounded-2xl border border-[var(--border)] px-5 py-3 font-bold transition hover:bg-emerald-50 sm:w-auto"
-            >
-              Keluar
-            </button>
-          </form>
-        </header>
-
-        <section className="mt-6 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <article className="rounded-[2rem] bg-[var(--primary)] p-7 text-white sm:p-9">
-            <p className="text-sm font-bold text-emerald-100">Minggu ini</p>
-            <h2 className="mt-3 text-4xl font-black tracking-[-0.04em]">
-              Mulai tinggalkan jejak pertamamu.
-            </h2>
-            <p className="mt-4 max-w-2xl leading-7 text-emerald-50">
-              Authentication sudah aktif. Pencatatan gym, lari, dan progress tubuh akan dibangun pada fase berikutnya.
-            </p>
-          </article>
-
-          <article className="rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] p-7 sm:p-9">
-            <p className="text-sm font-bold text-[var(--primary-strong)]">
-              Identitas internal
-            </p>
-            <p className="mt-4 break-all rounded-2xl bg-emerald-50 p-4 font-mono text-sm text-[var(--primary-strong)]">
-              {session.user.id}
-            </p>
-            <p className="mt-4 text-sm leading-6 text-[var(--muted)]">
-              UUID ini berasal dari penyimpanan aplikasi, bukan email atau ID yang dikirim browser.
-            </p>
-          </article>
-        </section>
-
-        <section className="mt-6">
-          <div className="mb-4">
-            <p className="text-sm font-bold text-[var(--primary-strong)]">
-              Aksi cepat
-            </p>
-            <h2 className="mt-1 text-2xl font-black">Segera tersedia</h2>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            {quickActions.map((action, index) => (
-              <article
-                key={action.title}
-                className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6"
-              >
-                <span className="grid size-10 place-items-center rounded-xl bg-emerald-100 font-black text-[var(--primary-strong)]">
-                  {index + 1}
-                </span>
-                <h3 className="mt-5 text-xl font-bold">{action.title}</h3>
-                <p className="mt-2 leading-7 text-[var(--muted)]">
-                  {action.description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
-      </div>
-    </main>
+    <div className="space-y-7">
+      <header className="flex items-end justify-between gap-4">
+        <div><p className="eyebrow">Dashboard kesehatan</p><h1 className="page-title">Halo, {displayName} 👋</h1><p className="page-subtitle">Setiap gerakan kecil tetap meninggalkan jejak.</p></div>
+        <Link href="/dashboard/activities/new" className="primary-action hidden sm:flex">＋ Catat aktivitas</Link>
+      </header>
+      <section className="hero-health">
+        <div className="relative z-10 max-w-2xl">
+          <span className="hero-kicker">JEJAK MINGGU INI</span>
+          <h2>{summary.sessionCount > 0 ? `${summary.sessionCount} sesi. Konsistensi sedang dibangun.` : "Mulai jejak sehat pertamamu hari ini."}</h2>
+          <p>{summary.sessionCount > 0 ? `Kamu sudah aktif selama ${formatDuration(summary.totalDurationSeconds)} di ${summary.activeDays} hari berbeda.` : "Catat latihan gym atau lari dalam kurang dari satu menit."}</p>
+          <Link href="/dashboard/activities/new" className="hero-button">{summary.sessionCount > 0 ? "Tambah sesi" : "Mulai sekarang"} <span aria-hidden="true">→</span></Link>
+        </div>
+        <div className="hero-orbit" aria-hidden="true"><span>♥</span></div>
+      </section>
+      {unavailable && <div className="error-banner">Data belum dapat dibaca. Lengkapi environment Google Sheets saat pengujian nanti.</div>}
+      <section className="stats-grid" aria-label="Ringkasan minggu ini">
+        <article className="stat-card"><span className="stat-icon stat-icon-green">⌁</span><p>Aktivitas</p><strong>{summary.sessionCount}</strong><small>sesi minggu ini</small></article>
+        <article className="stat-card"><span className="stat-icon stat-icon-teal">◷</span><p>Waktu aktif</p><strong>{formatDuration(summary.totalDurationSeconds)}</strong><small>waktu untuk diri sendiri</small></article>
+        <article className="stat-card"><span className="stat-icon stat-icon-lime">↗</span><p>Jarak lari</p><strong>{formatDistance(summary.runningDistanceMeters)}</strong><small>total langkah maju</small></article>
+        <article className="stat-card"><span className="stat-icon stat-icon-blue">◆</span><p>Volume gym</p><strong>{Math.round(summary.gymVolumeKg).toLocaleString("id-ID")}</strong><small>kilogram terangkat</small></article>
+      </section>
+      <section>
+        <div className="section-title-row"><div><p className="eyebrow">Aktivitas terbaru</p><h2>Jejak terakhir</h2></div><Link href="/dashboard/activities" className="text-link">Lihat semua →</Link></div>
+        {recent.length > 0 ? <div className="mt-4 grid gap-3">{recent.map((activity) => <ActivityCard key={activity.id} activity={activity} />)}</div> : <div className="empty-state mt-4"><span>🌱</span><h3>Belum ada jejak</h3><p>Sesi pertamamu tidak perlu sempurna. Yang penting mulai.</p><Link href="/dashboard/activities/new" className="primary-action">Catat aktivitas pertama</Link></div>}
+      </section>
+    </div>
   );
 }

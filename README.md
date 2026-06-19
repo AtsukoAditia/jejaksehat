@@ -4,28 +4,34 @@ JejakSehat adalah Progressive Web App untuk mencatat aktivitas gym, lari, perkem
 
 ## Status
 
-Project sedang berada pada **Phase 1 — Authentication**.
+Project sedang berada pada **Phase 2 — Activity Persistence**.
 
 Sudah tersedia:
 
 - Next.js App Router dan TypeScript
-- Responsive landing page dan login page
+- Responsive landing page, login page, dan authenticated app shell
 - PWA manifest, service worker, dan offline fallback
 - Auth.js dengan Google OAuth
 - JWT session dengan UUID internal pengguna
 - User upsert ke Google Sheets berdasarkan Google subject
 - Protected dashboard dan endpoint current user
-- API health endpoint
-- Domain entities dan repository contracts
-- Google Sheets schema dan initializer
+- Compound Google Sheets activity repository
+- Gym activity dengan multiple exercise dan set
+- Running activity dengan distance, pace, RPE, location, dan elevation
+- Activity history, filter, detail, edit metadata, PATCH API, dan soft delete
+- Full running activity editor
+- Weekly dashboard summary untuk sesi, durasi, jarak, active days, dan gym volume
+- Health-focused mobile-first UI
+- Zod validation dan ownership checks
 - Prisma schema untuk PostgreSQL
 - Data provider selector melalui environment variable
 - CI untuk lint, typecheck, tests, dan production build
 
 Belum tersedia:
 
-- CRUD gym dan lari
-- Dashboard statistik aktivitas
+- Live Google OAuth dan Google Sheets credential test
+- Individual gym exercise/set editor
+- Body progress dan goals
 - Deployment production
 - PostgreSQL persistence adapter
 
@@ -38,6 +44,7 @@ Belum tersedia:
 - Auth.js
 - Google OAuth
 - Google Sheets API
+- Zod
 - Prisma ORM
 - PostgreSQL untuk tahap migrasi
 - Vercel
@@ -53,14 +60,19 @@ npm run dev
 
 Buka `http://localhost:3000`.
 
-API tersedia di:
+## API
 
 ```text
-GET /api/v1/health
-GET /api/v1/me
+GET    /api/v1/health
+GET    /api/v1/me
+GET    /api/v1/activities
+POST   /api/v1/activities
+GET    /api/v1/activities/:id
+PATCH  /api/v1/activities/:id
+DELETE /api/v1/activities/:id
 ```
 
-`/api/v1/me` membutuhkan session yang valid.
+Endpoint selain health membutuhkan session valid. User ID selalu diambil dari session, bukan request browser.
 
 ## Environment Variables
 
@@ -128,7 +140,7 @@ Ketika migrasi selesai:
 DATA_PROVIDER=postgres
 ```
 
-UI dan business logic tidak boleh mengakses Google Sheets atau Prisma secara langsung. Seluruh akses data harus melewati repository contract.
+UI dan business logic tidak mengakses Google Sheets atau Prisma secara langsung. Seluruh akses data melewati repository contract.
 
 ## Dokumentasi
 
