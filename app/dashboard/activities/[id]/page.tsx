@@ -31,7 +31,7 @@ export default async function ActivityDetailPage({ params }: PageProps) {
         <Link href="/dashboard/activities" className="back-link">← Kembali ke aktivitas</Link>
         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div><p className="eyebrow">{activity.activityType === "RUN" ? "Catatan lari" : "Catatan gym"}</p><h1 className="page-title">{title}</h1><p className="page-subtitle">{new Intl.DateTimeFormat("id-ID", { dateStyle: "full" }).format(new Date(`${activity.activityDate}T00:00:00`))}</p></div>
-          <DeleteActivityButton activityId={activity.id} />
+          <div className="flex flex-wrap gap-2"><Link href={`/dashboard/activities/${activity.id}/edit`} className="secondary-action">Edit aktivitas</Link><DeleteActivityButton activityId={activity.id} /></div>
         </div>
       </header>
 
