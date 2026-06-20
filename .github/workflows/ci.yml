@@ -22,7 +22,24 @@ jobs:
         with:
           node-version: 20
       - run: npm install
+      - name: Install browser audit tools
+        run: npm install --no-save @playwright/test@1.61.0 @lhci/cli@0.15.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: Mobile acceptance
+        run: npx playwright test
+      - name: Lighthouse quality gates
+        run: npx lhci autorun --config=./lighthouserc.json
+      - name: Upload PWA reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pwa-verification
+          path: |
+            .lighthouseci
+            test-results
+          if-no-files-found: ignore
