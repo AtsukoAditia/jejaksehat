@@ -29,10 +29,13 @@ export function PwaInstallPrompt() {
       /iphone|ipad|ipod/.test(agent) &&
       /safari/.test(agent) &&
       !/crios|fxios|edgios/.test(agent);
+    let iosTimer: number | undefined;
 
     if (isIosSafari && !recentlyDismissed) {
-      setIosHint(true);
-      setVisible(true);
+      iosTimer = window.setTimeout(() => {
+        setIosHint(true);
+        setVisible(true);
+      }, 0);
     }
 
     function capture(event: Event) {
@@ -50,6 +53,7 @@ export function PwaInstallPrompt() {
     window.addEventListener("beforeinstallprompt", capture);
     window.addEventListener("appinstalled", installed);
     return () => {
+      if (iosTimer) window.clearTimeout(iosTimer);
       window.removeEventListener("beforeinstallprompt", capture);
       window.removeEventListener("appinstalled", installed);
     };
