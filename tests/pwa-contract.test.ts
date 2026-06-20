@@ -8,7 +8,7 @@ const manifest = readFileSync("app/manifest.ts", "utf8");
 test("service worker excludes API requests and only caches public navigations", () => {
   assert.match(serviceWorker, /url\.pathname\.startsWith\("\/api\/"\)/);
   assert.match(serviceWorker, /\["\/", "\/offline"\]\.includes\(pathname\)/);
-  assert.doesNotMatch(serviceWorker, /dashboard.*cache\.put/s);
+  assert.doesNotMatch(serviceWorker, /dashboard[\s\S]*cache\.put/);
 });
 
 test("manifest declares standalone PNG and maskable icons", () => {
