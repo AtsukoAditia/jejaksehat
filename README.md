@@ -4,36 +4,38 @@ JejakSehat adalah Progressive Web App untuk mencatat aktivitas gym, lari, perkem
 
 ## Status
 
-Project sedang berada pada **Phase 2 — Activity Persistence**.
+Project telah menyelesaikan **Phase 5 — Body Progress dan Goals**.
 
 Sudah tersedia:
 
-- Next.js App Router dan TypeScript
+- Next.js App Router, React, dan TypeScript
 - Responsive landing page, login page, dan authenticated app shell
 - PWA manifest, service worker, dan offline fallback
-- Auth.js dengan Google OAuth
-- JWT session dengan UUID internal pengguna
-- User upsert ke Google Sheets berdasarkan Google subject
-- Protected dashboard dan endpoint current user
-- Compound Google Sheets activity repository
-- Gym activity dengan multiple exercise dan set
-- Running activity dengan distance, pace, RPE, location, dan elevation
-- Activity history, filter, detail, edit metadata, PATCH API, dan soft delete
-- Full running activity editor
-- Weekly dashboard summary untuk sesi, durasi, jarak, active days, dan gym volume
-- Health-focused mobile-first UI
-- Zod validation dan ownership checks
-- Prisma schema untuk PostgreSQL
-- Data provider selector melalui environment variable
-- CI untuk lint, typecheck, tests, dan production build
+- Auth.js dengan Google OAuth dan JWT session
+- UUID internal pengguna serta user upsert ke Google Sheets
+- Protected dashboard dan API versioning `/api/v1`
+- Google Sheets activity repository untuk gym dan lari
+- Multiple exercise dan set untuk gym
+- Running distance, pace, RPE, location, dan elevation
+- Activity history, detail, edit, filter, dan soft delete
+- Body measurement CRUD untuk berat, body fat, dan lingkar pinggang
+- Lightweight progress charts tanpa dependency chart tambahan
+- Weekly workout goal, weekly running distance goal, dan target weight
+- Target weight progress untuk fase naik maupun turun berat
+- Goal create, update, deactivate, dan soft delete
+- Goal progress pada halaman Progress dan dashboard utama
+- Zod validation, ownership checks, dan repository abstraction
+- Prisma schema sebagai rangka PostgreSQL
+- CI untuk lint, typecheck, automated tests, dan production build
 
 Belum tersedia:
 
 - Live Google OAuth dan Google Sheets credential test
 - Individual gym exercise/set editor
-- Body progress dan goals
-- Deployment production
-- PostgreSQL persistence adapter
+- Workout streak
+- PWA hardening dan mobile acceptance test
+- Production deployment
+- PostgreSQL persistence adapters
 
 ## Tech Stack
 
@@ -65,14 +67,27 @@ Buka `http://localhost:3000`.
 ```text
 GET    /api/v1/health
 GET    /api/v1/me
+
 GET    /api/v1/activities
 POST   /api/v1/activities
 GET    /api/v1/activities/:id
 PATCH  /api/v1/activities/:id
 DELETE /api/v1/activities/:id
+
+GET    /api/v1/body-measurements
+POST   /api/v1/body-measurements
+GET    /api/v1/body-measurements/:id
+PATCH  /api/v1/body-measurements/:id
+DELETE /api/v1/body-measurements/:id
+
+GET    /api/v1/goals
+POST   /api/v1/goals
+GET    /api/v1/goals/:id
+PATCH  /api/v1/goals/:id
+DELETE /api/v1/goals/:id
 ```
 
-Endpoint selain health membutuhkan session valid. User ID selalu diambil dari session, bukan request browser.
+Endpoint selain health membutuhkan session valid. User ID selalu berasal dari session Auth.js dan tidak diterima dari browser.
 
 ## Environment Variables
 
@@ -124,17 +139,17 @@ http://localhost:3000/api/auth/callback/google
 npm run sheets:init
 ```
 
-Command tersebut membuat tab dan header database JejakSehat secara otomatis.
+Command tersebut membuat tab dan header database JejakSehat secara otomatis, termasuk `body_measurements` dan `goals`.
 
 ## Strategi Database
 
-Penyimpanan dipilih melalui:
+Penyimpanan saat ini dipilih melalui:
 
 ```env
 DATA_PROVIDER=sheets
 ```
 
-Ketika migrasi selesai:
+Ketika adapter PostgreSQL selesai:
 
 ```env
 DATA_PROVIDER=postgres
