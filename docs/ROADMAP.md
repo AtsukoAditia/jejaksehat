@@ -50,8 +50,8 @@
 - [x] Workout detail
 - [x] Edit tanggal, durasi, nama sesi, lokasi, dan catatan
 - [x] Soft delete
+- [x] Previous workout comparison
 - [ ] Edit individual exercise dan set
-- [ ] Previous workout comparison
 
 ## Phase 4 — Running Tracker
 
@@ -86,16 +86,26 @@
 - [x] Active days
 - [x] Recent activities
 - [x] Goal progress
-- [ ] Workout streak
+- [x] Current dan longest workout streak
 
 ## Phase 7 — PWA Hardening
 
-- [ ] PNG icons 192 dan 512
-- [ ] Install prompt
-- [ ] Mobile acceptance tests
-- [ ] Lighthouse review
-- [ ] Accessibility review
-- [ ] Offline submission design
+- [x] PNG icons 192 dan 512
+- [x] Maskable dan Apple touch icons
+- [x] Install prompt dan iOS guidance
+- [x] App shortcuts
+- [x] Versioned service worker caches
+- [x] Private health data cache exclusion
+- [x] Network status dan offline fallback
+- [x] Safe-area dan reduced-motion support
+- [x] Mobile acceptance tests 320px dan Pixel 5
+- [x] Manifest dan icon response tests
+- [x] Keyboard focus review
+- [x] Lighthouse accessibility, best-practices, SEO, dan performance review
+- [x] Offline behavior dan privacy design
+- [ ] Physical Android install test
+- [ ] Physical iOS Add to Home Screen test
+- [ ] Encrypted offline write queue
 
 ## Phase 8 — PostgreSQL Readiness
 
