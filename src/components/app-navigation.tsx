@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const items = [
   { href: "/dashboard", label: "Ringkasan", symbol: "⌂", exact: true },
   { href: "/dashboard/activities", label: "Aktivitas", symbol: "↗", exact: false },
+  { href: "/dashboard/progress", label: "Progress", symbol: "◎", exact: false },
 ];
 
 export function DesktopNavigation() {
