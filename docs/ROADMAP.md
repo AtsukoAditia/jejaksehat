@@ -65,11 +65,17 @@
 
 ## Phase 5 — Body Progress dan Goals
 
-- [ ] Body measurements CRUD
-- [ ] Progress charts
-- [ ] Weekly workout target
-- [ ] Running distance target
-- [ ] Target weight
+- [x] Body measurements CRUD
+- [x] Weight, body fat, dan waist trend charts
+- [x] Latest measurement dan delta comparison
+- [x] Weekly workout target
+- [x] Running distance target
+- [x] Target weight untuk naik atau turun berat
+- [x] Goal create, update, deactivate, dan soft delete
+- [x] Goal progress calculation dari activity dan measurement
+- [x] Mobile-first progress interface
+- [ ] Live Google Sheets credential test
+- [ ] PostgreSQL progress adapter
 
 ## Phase 6 — Dashboard
 
@@ -79,8 +85,8 @@
 - [x] Gym volume
 - [x] Active days
 - [x] Recent activities
+- [x] Goal progress
 - [ ] Workout streak
-- [ ] Goal progress
 
 ## Phase 7 — PWA Hardening
 
