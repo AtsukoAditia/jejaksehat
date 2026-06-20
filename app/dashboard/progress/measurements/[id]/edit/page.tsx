@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { BodyMeasurementForm } from "@/src/components/body-measurement-form";
+import type { BodyMeasurement } from "@/src/domain/entities/progress";
 import { getProgressRepository } from "@/src/infrastructure/repositories/progress-repository";
 
 export const metadata: Metadata = { title: "Edit Pengukuran" };
@@ -12,7 +13,7 @@ interface PageProps { params: Promise<{ id: string }> }
 export default async function EditMeasurementPage({ params }: PageProps) {
   const session = await auth();
   const { id } = await params;
-  let measurement = null;
+  let measurement: BodyMeasurement | null = null;
 
   try {
     measurement = await getProgressRepository().findMeasurementById(id, session!.user!.id!);
