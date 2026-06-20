@@ -3,12 +3,14 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { ActivityCard } from "@/src/components/activity-card";
 import { DashboardGoals } from "@/src/components/dashboard-goals";
+import { WorkoutStreakCard } from "@/src/components/workout-streak-card";
 import type { ActivityDetail } from "@/src/domain/entities/activity";
 import type { BodyMeasurement, Goal } from "@/src/domain/entities/progress";
 import { getActivityRepository } from "@/src/infrastructure/repositories/activity-repository";
 import { getProgressRepository } from "@/src/infrastructure/repositories/progress-repository";
 import { formatDistance, formatDuration, isWithinCurrentWeek, summarizeActivities } from "@/src/lib/activity-metrics";
 import { calculateGoalProgress } from "@/src/lib/progress-metrics";
+import { calculateWorkoutStreak } from "@/src/lib/workout-insights";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -21,7 +23,7 @@ export default async function DashboardPage() {
   let unavailable = false;
 
   try {
-    activities = await getActivityRepository().findByUser(session!.user!.id!, { limit: 100 });
+    activities = await getActivityRepository().findByUser(session!.user!.id!, { limit: 365 });
   } catch {
     unavailable = true;
   }
@@ -39,6 +41,7 @@ export default async function DashboardPage() {
   const summary = summarizeActivities(weeklyActivities);
   const recent = activities.slice(0, 4);
   const goalProgress = goals.map((goal) => calculateGoalProgress(goal, activities, measurements));
+  const streak = calculateWorkoutStreak(activities);
 
   return (
     <div className="space-y-7">
@@ -62,6 +65,7 @@ export default async function DashboardPage() {
         <article className="stat-card"><span className="stat-icon stat-icon-lime">↗</span><p>Jarak lari</p><strong>{formatDistance(summary.runningDistanceMeters)}</strong><small>total langkah maju</small></article>
         <article className="stat-card"><span className="stat-icon stat-icon-blue">◆</span><p>Volume gym</p><strong>{Math.round(summary.gymVolumeKg).toLocaleString("id-ID")}</strong><small>kilogram terangkat</small></article>
       </section>
+      <WorkoutStreakCard streak={streak} />
       <section>
         <div className="section-title-row"><div><p className="eyebrow">Target aktif</p><h2>Arah minggu ini</h2></div><Link href="/dashboard/progress" className="text-link">Kelola target →</Link></div>
         <div className="mt-4"><DashboardGoals progress={goalProgress} /></div>
