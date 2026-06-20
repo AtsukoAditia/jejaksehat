@@ -3,9 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { DeleteActivityButton } from "@/src/components/delete-activity-button";
+import { WorkoutComparison } from "@/src/components/workout-comparison";
 import type { ActivityDetail } from "@/src/domain/entities/activity";
 import { getActivityRepository } from "@/src/infrastructure/repositories/activity-repository";
 import { formatDistance, formatDuration, formatPace, gymVolume } from "@/src/lib/activity-metrics";
+import { compareGymWorkouts, findPreviousComparableWorkout, type GymWorkoutComparison } from "@/src/lib/workout-insights";
 
 export const metadata: Metadata = { title: "Detail Aktivitas" };
 
@@ -15,6 +17,7 @@ export default async function ActivityDetailPage({ params }: PageProps) {
   const session = await auth();
   const { id } = await params;
   let activity: ActivityDetail | null = null;
+  let workoutComparison: GymWorkoutComparison | null = null;
 
   try {
     activity = await getActivityRepository().findById(id, session!.user!.id!);
@@ -22,6 +25,19 @@ export default async function ActivityDetailPage({ params }: PageProps) {
     notFound();
   }
   if (!activity) notFound();
+
+  if (activity.activityType === "GYM") {
+    try {
+      const gymActivities = await getActivityRepository().findByUser(session!.user!.id!, {
+        type: "GYM",
+        limit: 200,
+      });
+      const previous = findPreviousComparableWorkout(activity, gymActivities);
+      workoutComparison = previous ? compareGymWorkouts(activity, previous) : null;
+    } catch {
+      workoutComparison = null;
+    }
+  }
 
   const title = activity.activityType === "RUN" ? activity.run.runType : activity.gym.title;
 
@@ -61,15 +77,18 @@ export default async function ActivityDetailPage({ params }: PageProps) {
           <dl className="detail-list"><div><dt>Jenis</dt><dd>{activity.run.runType}</dd></div><div><dt>Lokasi</dt><dd>{activity.run.location || "—"}</dd></div><div><dt>Elevation gain</dt><dd>{activity.run.elevationGainMeters ?? 0} m</dd></div><div><dt>Intensitas</dt><dd>RPE {activity.run.rpe ?? "—"}</dd></div></dl>
         </section>
       ) : (
-        <section className="space-y-4">
-          <div className="section-title-row"><div><p className="eyebrow">Rangkaian latihan</p><h2>Gerakan dan set</h2></div></div>
-          {activity.gym.exercises.map((exercise) => (
-            <article className="exercise-detail" key={exercise.id}>
-              <div><h3>{exercise.exerciseName}</h3><p>{exercise.muscleGroup}</p></div>
-              <div className="overflow-x-auto"><table><thead><tr><th>Set</th><th>Reps</th><th>Beban</th><th>RPE</th></tr></thead><tbody>{exercise.sets.map((set) => <tr key={set.id}><td>{set.setNumber}</td><td>{set.reps}</td><td>{set.weightKg} kg</td><td>{set.rpe ?? "—"}</td></tr>)}</tbody></table></div>
-            </article>
-          ))}
-        </section>
+        <>
+          <WorkoutComparison comparison={workoutComparison} />
+          <section className="space-y-4">
+            <div className="section-title-row"><div><p className="eyebrow">Rangkaian latihan</p><h2>Gerakan dan set</h2></div></div>
+            {activity.gym.exercises.map((exercise) => (
+              <article className="exercise-detail" key={exercise.id}>
+                <div><h3>{exercise.exerciseName}</h3><p>{exercise.muscleGroup}</p></div>
+                <div className="overflow-x-auto"><table><thead><tr><th>Set</th><th>Reps</th><th>Beban</th><th>RPE</th></tr></thead><tbody>{exercise.sets.map((set) => <tr key={set.id}><td>{set.setNumber}</td><td>{set.reps}</td><td>{set.weightKg} kg</td><td>{set.rpe ?? "—"}</td></tr>)}</tbody></table></div>
+              </article>
+            ))}
+          </section>
+        </>
       )}
 
       {activity.notes && <section className="note-card"><span aria-hidden="true">✦</span><div><p className="eyebrow">Catatan sesi</p><p>{activity.notes}</p></div></section>}
