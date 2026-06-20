@@ -8,15 +8,32 @@ interface InstallEvent extends Event {
 }
 
 const DISMISS_KEY = "jejaksehat-install-dismissed";
+const DISMISS_DURATION = 7 * 24 * 60 * 60 * 1000;
 
 export function PwaInstallPrompt() {
   const [installEvent, setInstallEvent] = useState<InstallEvent | null>(null);
+  const [iosHint, setIosHint] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (window.matchMedia("(display-mode: standalone)").matches) return;
+    const navigatorWithStandalone = navigator as Navigator & { standalone?: boolean };
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      navigatorWithStandalone.standalone === true;
+    if (standalone) return;
+
     const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) ?? 0);
-    const recentlyDismissed = Date.now() - dismissedAt < 604800000;
+    const recentlyDismissed = Date.now() - dismissedAt < DISMISS_DURATION;
+    const agent = navigator.userAgent.toLowerCase();
+    const isIosSafari =
+      /iphone|ipad|ipod/.test(agent) &&
+      /safari/.test(agent) &&
+      !/crios|fxios|edgios/.test(agent);
+
+    if (isIosSafari && !recentlyDismissed) {
+      setIosHint(true);
+      setVisible(true);
+    }
 
     function capture(event: Event) {
       event.preventDefault();
@@ -54,16 +71,20 @@ export function PwaInstallPrompt() {
     setVisible(false);
   }
 
-  if (!visible || !installEvent) return null;
+  if (!visible || (!installEvent && !iosHint)) return null;
 
   return (
     <aside className="install-card" aria-label="Instal JejakSehat">
       <div className="install-mark" aria-hidden="true">J+</div>
       <div className="min-w-0 flex-1">
         <strong>Pasang JejakSehat</strong>
-        <p>Akses latihan dan progress lebih cepat dari layar utama perangkatmu.</p>
+        <p>
+          {iosHint && !installEvent
+            ? "Ketuk Bagikan di Safari, lalu pilih Tambahkan ke Layar Utama."
+            : "Akses latihan dan progress lebih cepat dari layar utama perangkatmu."}
+        </p>
         <div className="mt-3 flex gap-2">
-          <button type="button" className="install-primary" onClick={install}>Pasang</button>
+          {installEvent && <button type="button" className="install-primary" onClick={install}>Pasang</button>}
           <button type="button" className="install-secondary" onClick={dismiss}>Nanti</button>
         </div>
       </div>
