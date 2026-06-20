@@ -49,13 +49,13 @@ async function publicNavigation(request, pathname) {
 async function staticAsset(request) {
   const cache = await caches.open(ASSET_CACHE);
   const cached = await cache.match(request);
-  const network = fetch(request)
-    .then((response) => {
-      if (response.ok) cache.put(request, response.clone());
-      return response;
-    })
-    .catch(() => cached);
-  return cached ?? network;
+  try {
+    const response = await fetch(request);
+    if (response.ok) await cache.put(request, response.clone());
+    return response;
+  } catch {
+    return cached ?? Response.error();
+  }
 }
 
 self.addEventListener("fetch", (event) => {
