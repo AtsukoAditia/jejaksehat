@@ -165,8 +165,9 @@ export class PostgresActivityRepository implements ActivityRepository {
         });
       }
 
+      const recreatedExercises = gymChildData(id, input.exercises);
       await tx.gymExercise.createMany({
-        data: gymChildData(id, input.exercises).map((exercise) => ({
+        data: recreatedExercises.map((exercise) => ({
           id: exercise.id,
           activityId: id,
           exerciseName: exercise.exerciseName,
@@ -175,7 +176,7 @@ export class PostgresActivityRepository implements ActivityRepository {
         })),
       });
 
-      for (const exercise of gymChildData(id, input.exercises)) {
+      for (const exercise of recreatedExercises) {
         await tx.gymSet.createMany({
           data: exercise.sets.create.map((set) => ({
             id: set.id,
