@@ -13,8 +13,11 @@
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "sheets:init": "tsx scripts/initialize-sheets.ts",
+    "sheets:validate": "tsx scripts/validate-sheets.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "db:dry-run": "tsx scripts/postgres-dry-run.ts",
+    "db:reconcile": "tsx scripts/reconcile-records.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {

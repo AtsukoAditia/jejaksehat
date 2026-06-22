@@ -39,7 +39,6 @@
 - [x] PATCH endpoint
 - [ ] Live Google Sheets credential test
 - [ ] Retry policy untuk rate limit
-- [ ] PostgreSQL activity adapter
 
 ## Phase 3 — Gym Tracker
 
@@ -75,7 +74,6 @@
 - [x] Goal progress calculation dari activity dan measurement
 - [x] Mobile-first progress interface
 - [ ] Live Google Sheets credential test
-- [ ] PostgreSQL progress adapter
 
 ## Phase 6 — Dashboard
 
@@ -109,11 +107,17 @@
 
 ## Phase 8 — PostgreSQL Readiness
 
-- [ ] PostgreSQL adapters
-- [ ] Sheets validation script
-- [ ] Migration dry-run script
-- [ ] Provider contract tests
-- [ ] Record reconciliation report
+- [x] PostgreSQL user adapter
+- [x] PostgreSQL activity adapter
+- [x] PostgreSQL progress adapter
+- [x] `DATA_PROVIDER=postgres` provider wiring
+- [x] Sheets validation script
+- [x] Migration dry-run script
+- [x] Provider contract tests
+- [x] Record reconciliation report
+- [x] Migration workflow documentation
+- [ ] Live PostgreSQL credential test
+- [ ] Full data import script
 
 ## Phase 9 — PostgreSQL Migration
 
