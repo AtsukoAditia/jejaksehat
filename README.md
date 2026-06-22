@@ -4,13 +4,15 @@ JejakSehat adalah Progressive Web App untuk mencatat aktivitas gym, lari, perkem
 
 ## Status
 
-Project telah menyelesaikan **Phase 7 — PWA Hardening**.
+Project telah menyelesaikan **Phase 8 — PostgreSQL Readiness**.
 
 Sudah tersedia:
 
 - Next.js App Router, React, TypeScript, dan responsive authenticated app shell
 - Auth.js dengan Google OAuth, JWT session, UUID internal, dan protected routes
 - Google Sheets repositories untuk user, gym, lari, body measurement, dan goals
+- PostgreSQL repositories untuk user, activity, body measurement, dan goals
+- `DATA_PROVIDER=sheets` dan `DATA_PROVIDER=postgres` melalui provider factory
 - Activity history, detail, filter, edit, validation, ownership check, dan soft delete
 - Multiple exercise/set untuk gym serta pace, RPE, location, dan elevation untuk lari
 - Previous gym workout comparison untuk durasi, volume, set, gerakan, dan beban terbaik
@@ -22,6 +24,8 @@ Sudah tersedia:
 - App shortcuts, browser install prompt, serta Safari iOS install guidance
 - Versioned service worker cache dengan exclusion untuk API dan data kesehatan privat
 - Network status, privacy-aware offline fallback, safe-area, dan reduced-motion support
+- Provider contract tests dengan in-memory fixtures
+- Sheets validation, PostgreSQL dry-run, dan reconciliation commands
 - Playwright acceptance untuk viewport 320px dan Pixel 5
 - Lighthouse accessibility, best-practices, SEO, dan performance review dalam CI
 - Prisma schema sebagai rangka PostgreSQL
@@ -29,11 +33,12 @@ Sudah tersedia:
 Belum tersedia:
 
 - Live Google OAuth dan Google Sheets credential test
+- Live PostgreSQL credential test
+- Full data import script dari Sheets ke PostgreSQL
 - Individual gym exercise/set editor
 - Physical Android dan iOS install test
 - Encrypted offline write queue
 - Production deployment
-- PostgreSQL persistence adapters
 
 ## Tech Stack
 
@@ -46,7 +51,7 @@ Belum tersedia:
 - Google Sheets API
 - Zod
 - Prisma ORM
-- PostgreSQL untuk tahap migrasi
+- PostgreSQL
 - Playwright dan Lighthouse CI
 - Vercel
 
@@ -109,7 +114,7 @@ DATABASE_URL=
 DIRECT_URL=
 ```
 
-Jangan commit file `.env`, OAuth secret, atau credential service account ke repository.
+Jangan commit file `.env`, OAuth secret, database URL, atau credential service account ke repository.
 
 ## Inisialisasi Google Sheets
 
@@ -124,6 +129,31 @@ npm run sheets:init
 ```
 
 Command tersebut membuat tab dan header database JejakSehat secara otomatis.
+
+## PostgreSQL Readiness
+
+Default provider tetap Google Sheets:
+
+```env
+DATA_PROVIDER=sheets
+```
+
+Untuk preview PostgreSQL:
+
+```env
+DATA_PROVIDER=postgres
+```
+
+Command readiness:
+
+```bash
+npm run sheets:validate
+npm run db:generate
+npm run db:dry-run
+npm run db:reconcile
+```
+
+Detail workflow, checklist, dan rollback tersedia di `docs/POSTGRES_READINESS.md`.
 
 ## Kebijakan PWA dan Offline
 
@@ -147,19 +177,9 @@ npx lhci autorun --config=./lighthouserc.json
 
 ## Strategi Database
 
-Penyimpanan saat ini:
-
-```env
-DATA_PROVIDER=sheets
-```
-
-Setelah adapter PostgreSQL selesai:
-
-```env
-DATA_PROVIDER=postgres
-```
-
 UI dan business logic tidak mengakses Google Sheets atau Prisma secara langsung. Seluruh akses data melewati repository contract.
+
+Phase 8 belum melakukan import data aktual. Full import dan cutover production masuk Phase 9.
 
 ## Dokumentasi
 
@@ -168,6 +188,7 @@ UI dan business logic tidak mengakses Google Sheets atau Prisma secara langsung.
 - `docs/GOOGLE_AUTH_SETUP.md`
 - `docs/MIGRATION_POSTGRES.md`
 - `docs/PHASE6_COMPLETION.md`
+- `docs/POSTGRES_READINESS.md`
 - `docs/PWA_HARDENING.md`
 - `docs/ROADMAP.md`
 
