@@ -1,0 +1,114 @@
+# JejakSehat — Cline Rules
+
+You are working on JejakSehat, a health-focused PWA for gym, running, body progress, and goals.
+
+## Current project status
+
+The project has completed:
+
+- Foundation, Auth.js Google OAuth architecture, and protected app shell.
+- Google Sheets repositories for users, activities, body measurements, and goals.
+- PostgreSQL provider readiness through Prisma repositories.
+- Activity CRUD for gym and running.
+- Body progress and goals.
+- Dashboard goal progress, workout streak, and previous gym workout comparison.
+- PWA hardening: manifest, icons, install prompt, offline fallback, mobile acceptance, Lighthouse gates.
+
+Important unfinished items:
+
+- Live Google OAuth test.
+- Live Google Sheets credential test.
+- Live PostgreSQL credential test.
+- Full data import script from Sheets to PostgreSQL.
+- Individual gym exercise/set editor.
+- Production deployment to Vercel.
+- Physical Android and iOS install test.
+- Encrypted offline write queue.
+
+## Architecture rules
+
+- Keep UI and business logic independent from storage details.
+- All data access must go through repository contracts under `src/domain/repositories`.
+- Provider implementation must live under `src/infrastructure/sheets` or `src/infrastructure/postgres`.
+- Provider selection must use `DATA_PROVIDER=sheets|postgres` through factory files under `src/infrastructure/repositories`.
+- Do not access Google Sheets, Prisma, or environment variables directly from React components.
+- Keep `DATA_PROVIDER=sheets` as the safest default unless a task explicitly requires PostgreSQL.
+
+## Security and privacy rules
+
+- Never commit `.env`, `.env.local`, database URLs, OAuth secrets, private keys, service account JSON, or exported user data.
+- Never accept user ID from browser payloads for protected resources.
+- Always derive ownership from the Auth.js session UUID.
+- All private records must be filtered by `userId` in repository/API logic.
+- Use soft delete for health data and activity data unless a task explicitly changes the policy.
+- Do not cache `/api/*`, dashboard private pages, activity data, measurements, goals, session responses, or health records in the service worker.
+- Be conservative with offline writes. Do not implement local queued health submissions without encryption, conflict handling, expiry, and duplicate prevention.
+
+## Coding standards
+
+- Use TypeScript strictly. Avoid `any`; if unavoidable, isolate it and explain why in a comment.
+- Prefer small pure helper functions for calculations.
+- Keep validation in `src/validation` using Zod.
+- Keep reusable UI in `src/components`.
+- Use mobile-first responsive UI.
+- Maintain the health visual system: emerald, teal, lime, warm neutral, accessible contrast.
+- Do not add heavy dependencies unless clearly justified.
+- Prefer native SVG/CSS for simple charts and UI effects.
+- Keep Indonesian user-facing copy natural, concise, and non-judgmental.
+
+## API rules
+
+- Versioned routes live under `app/api/v1`.
+- Protected endpoints must check `auth()` and return `401` when missing.
+- Invalid payloads should return `422` with useful field errors.
+- Missing owned resources should return `404`.
+- Do not expose internal IDs beyond normal resource IDs needed by the app.
+
+## Testing and verification rules
+
+Before finishing a task, run or preserve these gates when relevant:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+For PWA/mobile changes, also run:
+
+```bash
+npm install --no-save @playwright/test@1.61.0 @lhci/cli@0.15.1
+npx playwright install chromium
+npx playwright test
+npx lhci autorun --config=./lighthouserc.json
+```
+
+For Sheets/PostgreSQL readiness work, use:
+
+```bash
+npm run sheets:validate
+npm run db:generate
+npm run db:dry-run
+npm run db:reconcile
+```
+
+Only run live credential commands when `.env.local` is configured locally.
+
+## Git workflow rules
+
+- Create focused branches for non-trivial work.
+- Prefer small commits grouped by purpose: `feat`, `fix`, `docs`, `test`, `chore`, `refactor`.
+- Do not rewrite unrelated files.
+- Do not change generated lock files unless dependencies actually changed and the user asked for it.
+- Do not bypass CI by deleting tests or weakening quality gates.
+
+## Communication style for local AI work
+
+When explaining changes to the user:
+
+- Use Indonesian.
+- Be direct and specific.
+- Mention files changed.
+- Mention commands run and their status.
+- Be honest about anything untested, especially live OAuth, Sheets, PostgreSQL, Vercel, and physical-device PWA checks.
