@@ -3,11 +3,29 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { ActivityDetail } from "@/src/domain/entities/activity";
+import { GymDetailEditor } from "@/src/components/gym-detail-editor";
+import type { ExerciseDraft } from "@/src/components/gym-detail-editor";
 
 export function EditActivityForm({ activity }: { activity: ActivityDetail }) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [gymExercises, setGymExercises] = useState<ExerciseDraft[]>(
+    activity.activityType === "GYM"
+      ? activity.gym.exercises.map((ex) => ({
+          exerciseName: ex.exerciseName,
+          muscleGroup: ex.muscleGroup,
+          sets: ex.sets.map((set) => ({
+            setNumber: set.setNumber,
+            reps: set.reps,
+            weightKg: set.weightKg,
+            rpe: set.rpe ?? 7,
+            completed: set.completed,
+          })),
+        }))
+      : [],
+  );
 
   async function submit(formData: FormData) {
     setSubmitting(true);
@@ -29,12 +47,12 @@ export function EditActivityForm({ activity }: { activity: ActivityDetail }) {
           rpe: Number(formData.get("rpe")),
           elevationGainMeters: Number(formData.get("elevationGain") || 0),
         }
-      : {
+        : {
           ...common,
           activityType: "GYM",
           title: String(formData.get("title")),
           location: String(formData.get("location") || "") || null,
-          exercises: activity.gym.exercises.map((exercise) => ({
+          exercises: gymExercises.map((exercise) => ({
             exerciseName: exercise.exerciseName,
             muscleGroup: exercise.muscleGroup,
             sets: exercise.sets.map((set) => ({
@@ -84,13 +102,14 @@ export function EditActivityForm({ activity }: { activity: ActivityDetail }) {
       </section>
 
       {activity.activityType === "GYM" && (
-        <div className="rounded-2xl border border-[#dcebb2] bg-[#f7fbe8] p-4 text-sm leading-6 text-[#526900]">
-          Gerakan dan set dipertahankan persis seperti catatan awal. Editor detail set akan dibuat pada iterasi berikutnya agar perubahan tidak merusak histori latihan.
-        </div>
+        <section className="form-card">
+          <div className="section-heading"><span>02</span><div><h2>Gerakan latihan</h2><p>Edit gerakan, set, beban, dan repetisi satu per satu.</p></div></div>
+          <GymDetailEditor initialExercises={gymExercises} onChange={setGymExercises} />
+        </section>
       )}
 
-      <section className="form-card">
-        <div className="section-heading"><span>02</span><div><h2>Catatan</h2><p>Perbarui insight dari sesi ini.</p></div></div>
+        <section className="form-card">
+          <div className="section-heading"><span>03</span><div><h2>Catatan</h2><p>Perbarui insight dari sesi ini.</p></div></div>
         <label className="field"><span>Catatan</span><textarea name="notes" rows={4} maxLength={300} defaultValue={activity.notes ?? ""} /></label>
       </section>
 
