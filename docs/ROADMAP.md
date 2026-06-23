@@ -50,7 +50,7 @@
 - [x] Edit tanggal, durasi, nama sesi, lokasi, dan catatan
 - [x] Soft delete
 - [x] Previous workout comparison
-- [ ] Edit individual exercise dan set
+- [x] Edit individual exercise dan set
 
 ## Phase 4 — Running Tracker
 

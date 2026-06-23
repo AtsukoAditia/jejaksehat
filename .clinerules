@@ -16,11 +16,9 @@ The project has completed:
 
 Important unfinished items:
 
-- Live Google OAuth test.
 - Live Google Sheets credential test.
 - Live PostgreSQL credential test.
 - Full data import script from Sheets to PostgreSQL.
-- Individual gym exercise/set editor.
 - Production deployment to Vercel.
 - Physical Android and iOS install test.
 - Encrypted offline write queue.

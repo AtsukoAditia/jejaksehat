@@ -164,11 +164,9 @@ public/sw.js
 
 ## Current known gaps
 
-- Live OAuth credential test.
 - Live Google Sheets credential test.
 - Live PostgreSQL credential test.
 - Full Sheets to PostgreSQL import script.
-- Individual gym exercise/set editor.
 - Vercel production deployment.
 - Physical Android/iOS install test.
 - Encrypted offline write queue.
