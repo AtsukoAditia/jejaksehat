@@ -2,6 +2,24 @@
 
 Gunakan file ini untuk memilih task kecil saat bekerja dengan Cline lokal.
 
+## Completed recently
+
+### Individual gym exercise/set editor
+
+Status: selesai.
+
+Yang sudah tersedia:
+
+- Edit nama gerakan.
+- Edit kelompok otot.
+- Edit reps.
+- Edit beban.
+- Edit RPE.
+- Edit status completed.
+- Tambah dan hapus set.
+- Tambah dan hapus gerakan.
+- Submit melalui `PATCH /api/v1/activities/:id`.
+
 ## Priority 1 — Local live verification
 
 ### Task 1.1 — Test Google OAuth locally
@@ -35,50 +53,12 @@ Checklist:
 - `npm run sheets:validate` hijau.
 - Login membuat row user.
 - Catat gym membuat rows di activities, gym_sessions, gym_exercises, gym_sets.
+- Edit gym mengubah exercise dan set dengan benar.
 - Catat lari membuat rows di activities dan runs.
 - Catat body measurement membuat row di body_measurements.
 - Buat goal membuat row di goals.
 
-## Priority 2 — Individual gym exercise/set editor
-
-Goal:
-
-- Buat editor detail gym yang bisa mengubah exercise dan set satu per satu.
-
-Current limitation:
-
-- Metadata gym bisa diedit.
-- Individual exercise/set editor belum selesai.
-
-Suggested approach:
-
-- Reuse activity payload schema.
-- Load existing gym detail into editable client state.
-- Allow add/remove exercise.
-- Allow add/remove set.
-- Preserve sequence numbers.
-- Use `PATCH /api/v1/activities/:id`.
-- Keep soft-delete behavior on provider side.
-
-Acceptance criteria:
-
-- User can edit exercise name, muscle group, reps, weight, RPE, completed state.
-- User can add and remove sets.
-- User can add and remove exercises.
-- Previous workout comparison still works after edit.
-- Validation errors are readable.
-- Mobile layout remains usable at 320px.
-
-Verification:
-
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
-```
-
-## Priority 3 — Phase 9 import script
+## Priority 2 — Phase 9 import script
 
 Goal:
 
@@ -112,7 +92,7 @@ npm run db:import:dry-run
 npm run db:import
 ```
 
-## Priority 4 — Vercel preview deployment
+## Priority 3 — Vercel preview deployment
 
 Goal:
 
@@ -132,7 +112,7 @@ Do not commit:
 - OAuth secrets.
 - Database URLs.
 
-## Priority 5 — Physical PWA install tests
+## Priority 4 — Physical PWA install tests
 
 Goal:
 
@@ -155,7 +135,7 @@ iOS Safari:
 - Login works in standalone mode.
 - Safe-area layout looks correct.
 
-## Priority 6 — Encrypted offline write queue research
+## Priority 5 — Encrypted offline write queue research
 
 Goal:
 
