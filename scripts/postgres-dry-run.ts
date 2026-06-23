@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { closePrismaClient, getPrismaClient } from "../src/infrastructure/postgres/client";
 
 const requiredEnvironment = ["DATABASE_URL", "DIRECT_URL"];
