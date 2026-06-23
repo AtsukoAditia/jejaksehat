@@ -97,7 +97,9 @@ Gym memiliki:
 - Location.
 - Multiple exercises.
 - Multiple sets.
+- Individual exercise/set editor.
 - Reps, weight, RPE, completed.
+- Previous workout comparison.
 
 Run memiliki:
 
@@ -106,6 +108,7 @@ Run memiliki:
 - Location.
 - RPE.
 - Elevation gain.
+- Full edit flow.
 
 ### Progress
 
@@ -141,6 +144,7 @@ Goals:
 
 ```text
 README.md
+docs/MODULE_AUDIT.md
 docs/ROADMAP.md
 docs/POSTGRES_READINESS.md
 docs/PWA_HARDENING.md
@@ -155,7 +159,7 @@ public/sw.js
 - Phase 0 Foundation
 - Phase 1 Authentication code
 - Phase 2 Activity Persistence
-- Phase 3 Gym Tracker base
+- Phase 3 Gym Tracker
 - Phase 4 Running Tracker
 - Phase 5 Body Progress and Goals
 - Phase 6 Dashboard Completion
@@ -164,6 +168,7 @@ public/sw.js
 
 ## Current known gaps
 
+- Live Google OAuth credential test.
 - Live Google Sheets credential test.
 - Live PostgreSQL credential test.
 - Full Sheets to PostgreSQL import script.
