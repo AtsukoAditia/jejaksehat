@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { getSheetsClient, getSpreadsheetId } from "../src/infrastructure/sheets/client";
 import { SHEET_HEADERS, SHEET_SCHEMA_VERSION, SHEET_TABS } from "../src/infrastructure/sheets/schema";
 
